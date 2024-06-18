@@ -1,0 +1,8 @@
+bin/
+buildcache/
+code-db/
+runtimes/
+runtimes-db/
+test-runtime/
+logfile
+Dockerfile

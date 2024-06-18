@@ -1,0 +1,11 @@
+   - list runtimes
+   - upload runtime
+   - set runtime from docker hub
+   - list lambdas
+   - upload lambda
+     - runtime
+     - volume
+     - cmd arguments
+     - name
+     - port?
+  - show details of a lambda
