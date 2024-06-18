@@ -6,3 +6,4 @@ runtimes-db/
 test-runtime/
 logfile
 Dockerfile
+passfile

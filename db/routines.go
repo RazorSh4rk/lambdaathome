@@ -21,7 +21,7 @@ func CleanUnusedRuntimes(db KV) {
 
 			runtimeFiles, err := os.ReadDir("./runtimes")
 			if err != nil {
-				panic(err)
+				log.Fatal(err)
 			}
 			f.From(runtimeFiles).ForEach(func(file os.DirEntry) {
 				keep := fileNames.Has(func(fileName string) bool {

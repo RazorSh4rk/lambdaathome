@@ -131,21 +131,21 @@ func unzip(file *zip.File, cacheDir string) {
 	}
 
 	if err := os.MkdirAll(filepath.Dir(savePath), os.ModePerm); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	dstFile, err := os.OpenFile(savePath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, file.Mode())
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	fileInArchive, err := file.Open()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	if _, err := io.Copy(dstFile, fileInArchive); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	dstFile.Close()

@@ -17,7 +17,7 @@ func (client Client) BuildImage(function t.LambdaFun) {
 
 	tar, err := archive.TarWithOptions(dockerfilePath, &archive.TarOptions{})
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	res, err := client.c.ImageBuild(ctx, tar, types.ImageBuildOptions{
@@ -25,7 +25,7 @@ func (client Client) BuildImage(function t.LambdaFun) {
 		Tags:       []string{function.Tag},
 	})
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	message, err := io.ReadAll(res.Body)

@@ -1,18 +1,28 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
 	"github.com/RazorSh4rk/lambdaathome/db"
 	api "github.com/RazorSh4rk/lambdaathome/route-handlers"
+	setup "github.com/RazorSh4rk/lambdaathome/selfsetup"
 	"github.com/RazorSh4rk/lambdaathome/ssl"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
 func main() {
+	setup.Setup()
+
 	godotenv.Load()
+
+	ginDebug := os.Getenv("GIN_DEBUG")
+	if ginDebug == "false" || ginDebug == "0" {
+		fmt.Println("release mode")
+		gin.SetMode(gin.ReleaseMode)
+	}
 
 	logToFile := os.Getenv("LOG_TO_FILE")
 	if logToFile == "true" || logToFile == "1" {
@@ -24,6 +34,7 @@ func main() {
 			log.SetOutput(logFile)
 		}
 	}
+
 	router := gin.Default()
 	router.Use(gin.Recovery())
 
@@ -49,8 +60,6 @@ func main() {
 	api.HandleUploadCode(router, codeStore, runtimeStore)
 
 	ssl.Run(router)
-	//cli, _ := commands.NewClient()
-	//cli.BuildImage()
 }
 
 // func NewProxy(targetHost string) (*httputil.ReverseProxy, error) {
@@ -71,7 +80,7 @@ func main() {
 
 // 	proxy, err := NewProxy("http://localhost:8080")
 // 	if err != nil {
-// 		panic(err)
+// 		log.Fatal(err)
 // 	}
 
 // 	http.HandleFunc("/", ProxyRequestHandler(proxy))

@@ -1,6 +1,8 @@
 package db
 
 import (
+	"log"
+
 	"github.com/dgraph-io/badger/v4"
 )
 
@@ -11,7 +13,7 @@ type KV struct {
 func New(persPath string) KV {
 	db, err := badger.Open(badger.DefaultOptions(persPath))
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	return KV{DB: db}
 }
@@ -21,7 +23,7 @@ func (kv KV) Set(key, value string) {
 		return txn.Set([]byte(key), []byte(value))
 	})
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
 
@@ -36,7 +38,7 @@ func (kv KV) Get(key string) string {
 		return err
 	})
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	return string(value)
 }
@@ -46,7 +48,7 @@ func (kv KV) Delete(key string) {
 		return txn.Delete([]byte(key))
 	})
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 }
 
@@ -63,7 +65,7 @@ func (kv KV) AllKeys() []string {
 		return nil
 	})
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	return keys
 }

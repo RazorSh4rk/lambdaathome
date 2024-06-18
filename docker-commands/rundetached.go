@@ -32,7 +32,7 @@ func (client Client) RunDetached(lambda t.LambdaFun) {
 	ID := client.CreateContainer(lambda.Name)
 
 	if err := client.c.ContainerStart(ctx, ID, container.StartOptions{}); err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	log.Printf("%s started as %s", lambda.Name, ID)
@@ -42,7 +42,7 @@ func (client Client) PullImage(imageName string) {
 	ctx := context.Background()
 	out, err := client.c.ImagePull(ctx, imageName, image.PullOptions{})
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer out.Close()
 }
@@ -54,7 +54,7 @@ func (client Client) CreateContainer(imageName string) string {
 		Image: imageName,
 	}, nil, nil, nil, "")
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	return resp.ID

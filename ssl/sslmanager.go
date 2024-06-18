@@ -21,7 +21,6 @@ func Run(router *gin.Engine) {
 			HostPolicy: autocert.HostWhitelist(whitelist...),
 			Cache:      autocert.DirCache("./tlsconf"),
 		}
-		gin.SetMode(gin.ReleaseMode)
 		log.Fatal(autotls.RunWithManager(router, &m))
 	} else {
 		router.Run(":8080")
