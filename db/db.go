@@ -70,6 +70,23 @@ func (kv KV) AllKeys() []string {
 	return keys
 }
 
+func (kv KV) HasKey(key string) bool {
+	var has bool
+	err := kv.DB.View(func(txn *badger.Txn) error {
+		_, err := txn.Get([]byte(key))
+		if err != nil {
+			has = false
+		} else {
+			has = true
+		}
+		return nil
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	return has
+}
+
 func (kv KV) Close() {
 	kv.DB.Close()
 }

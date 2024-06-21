@@ -57,7 +57,12 @@ func main() {
 	codeStore := db.New("code-db")
 	defer codeStore.Close()
 
+	db.RestartServices(codeStore)
+
 	api.HandleUploadCode(router, codeStore, runtimeStore)
+	api.HandleListFunctions(router, codeStore)
+	api.HandleListRunningFunctions(router, codeStore)
+	api.HandleKillFunction(router, codeStore)
 
 	ssl.Run(router)
 }

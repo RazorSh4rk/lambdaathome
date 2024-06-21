@@ -7,4 +7,5 @@ type LambdaFun struct {
 	Port    string `json:"port"`
 	Volume  string `json:"volume"`
 	Source  string `json:"source"`
+	ID      string `json:"id"`
 }

@@ -11,7 +11,7 @@ import (
 	"github.com/docker/docker/api/types/image"
 )
 
-func (client Client) RunDetached(lambda t.LambdaFun) {
+func (client Client) RunDetached(lambda t.LambdaFun) string {
 	log.Println("Running image", lambda.Name)
 	ctx := context.Background()
 
@@ -36,6 +36,7 @@ func (client Client) RunDetached(lambda t.LambdaFun) {
 	}
 
 	log.Printf("%s started as %s", lambda.Name, ID)
+	return ID
 }
 
 func (client Client) PullImage(imageName string) {

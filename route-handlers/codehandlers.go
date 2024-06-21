@@ -2,6 +2,7 @@ package api
 
 import (
 	"archive/zip"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -105,9 +106,15 @@ func HandleUploadCode(router *gin.Engine, db db.KV, runtimes db.KV) {
 
 		lambda.Source = cacheDir + "code/"
 		docker.BuildImage(lambda)
-		docker.RunDetached(lambda)
+		containerId := docker.RunDetached(lambda)
 
-		//db.Set(lambda.Name, lambda.Runtime)
+		lambda.ID = containerId
+
+		record, err := json.Marshal(lambda)
+		if err != nil {
+			log.Fatal(err, containerId, lambda)
+		}
+		db.Set(containerId, string(record))
 
 		c.JSON(200, gin.H{
 			"message": "Code uploaded",
