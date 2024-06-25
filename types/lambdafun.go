@@ -5,7 +5,8 @@ type LambdaFun struct {
 	Tag     string `json:"tag"`
 	Runtime string `json:"runtime"`
 	Port    string `json:"port"`
-	Volume  string `json:"volume"`
-	Source  string `json:"source"`
-	ID      string `json:"id"`
+	// ./data:/data,./folder:/app/folder
+	Volume string `json:"volume"`
+	Source string `json:"source"`
+	ID     string `json:"id"`
 }

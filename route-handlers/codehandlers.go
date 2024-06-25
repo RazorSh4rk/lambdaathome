@@ -63,7 +63,7 @@ func HandleUploadCode(router *gin.Engine, db db.KV, runtimes db.KV) {
 
 		fPath := fmt.Sprintf("%s%s", cacheDir, zipFile.Filename)
 		c.SaveUploadedFile(zipFile, fPath)
-		//defer os.RemoveAll(cacheDir)
+		defer os.RemoveAll(cacheDir)
 
 		archive, err := zip.OpenReader(fPath)
 		if err != nil {

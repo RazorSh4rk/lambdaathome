@@ -37,12 +37,7 @@ func main() {
 
 	router := gin.Default()
 	router.Use(gin.Recovery())
-
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "Hello World",
-		})
-	})
+	router.Use(api.HandleAuth())
 
 	runtimeStore := db.New("runtimes-db")
 	defer runtimeStore.Close()
@@ -63,6 +58,8 @@ func main() {
 	api.HandleListFunctions(router, codeStore)
 	api.HandleListRunningFunctions(router, codeStore)
 	api.HandleKillFunction(router, codeStore)
+	api.HandleStartBuiltFunction(router, codeStore)
+	api.HandleListInstalledFunctions(router)
 
 	ssl.Run(router)
 }

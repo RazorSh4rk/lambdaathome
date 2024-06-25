@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/RazorSh4rk/f"
@@ -15,7 +16,20 @@ import (
 func CleanUnusedRuntimes(db KV) {
 	go func() {
 		for {
-			time.Sleep(time.Duration(24) * time.Second)
+			sleepTimeEnv := os.Getenv("CLEANUP_INTERVAL")
+			var sleepTime int
+			if sleepTimeEnv == "" {
+				sleepTime = 120
+			} else {
+				_, err := strconv.Atoi(sleepTimeEnv)
+				if err != nil {
+					sleepTime = 120
+					log.Fatal(err)
+				} else {
+					sleepTime, _ = strconv.Atoi(sleepTimeEnv)
+				}
+			}
+			time.Sleep(time.Duration(sleepTime) * time.Second)
 			log.Println("dispatching runtime cleaner routine")
 
 			keys := db.AllKeys()
@@ -43,7 +57,21 @@ func CleanUnusedRuntimes(db KV) {
 func RestartServices(db KV) {
 	go func() {
 		for {
-			time.Sleep(time.Duration(30) * time.Second)
+			sleepTimeEnv := os.Getenv("RESTART_INTERVAL")
+			var sleepTime int
+			if sleepTimeEnv == "" {
+				sleepTime = 120
+			} else {
+				_, err := strconv.Atoi(sleepTimeEnv)
+				if err != nil {
+					sleepTime = 120
+					log.Fatal(err)
+				} else {
+					sleepTime, _ = strconv.Atoi(sleepTimeEnv)
+				}
+			}
+
+			time.Sleep(time.Duration(sleepTime) * time.Second)
 			log.Println("restarting services")
 
 			keys := db.AllKeys()
