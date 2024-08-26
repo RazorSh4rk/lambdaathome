@@ -23,3 +23,10 @@ __Lambdaathome is__
   - extendable
   - not reliant on any application
 
+#### runme
+
+- for the backend
+  - `go run .`
+  - if you have it installed, you can `air`
+- for the dashboard
+  - `bun run dev`
