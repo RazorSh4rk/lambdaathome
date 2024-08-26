@@ -44,9 +44,7 @@ func HandleListRunningFunctions(router *gin.Engine, db db.KV) {
 		defer docker.Close()
 
 		all := docker.ListRunning()
-		c.JSON(200, gin.H{
-			"running": all,
-		})
+		c.JSON(200, all)
 	})
 }
 
@@ -63,11 +61,14 @@ func HandleListInstalledFunctions(router *gin.Engine) {
 			return i.RepoTags
 		}).Filter(func(tags []string) bool {
 			return len(tags) > 0
-		})
+		}).Val
 
-		c.JSON(200, gin.H{
-			"installed": tags.Val,
-		})
+		fnNames := []string{}
+		for _, tag := range tags {
+			fnNames = append(fnNames, string(tag[0]))
+		}
+
+		c.JSON(200, fnNames)
 	})
 }
 

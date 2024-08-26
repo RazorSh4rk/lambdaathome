@@ -90,7 +90,7 @@ func RestartServices(db KV) {
 				defer docker.Close()
 
 				alive := f.From(docker.ListRunning()).Has(func(cont dockerTypes.Container) bool {
-					return cont.Image == lambda.Name
+					return cont.Image == lambda.Tag
 				})
 
 				if !alive {

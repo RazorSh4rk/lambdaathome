@@ -6,6 +6,8 @@ require (
 	github.com/RazorSh4rk/f v0.1.2
 	github.com/dgraph-io/badger/v4 v4.2.0
 	github.com/docker/docker v27.0.0+incompatible
+	github.com/docker/go-connections v0.5.0
+	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-gonic/autotls v1.1.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/google/uuid v1.6.0
@@ -25,7 +27,6 @@ require (
 	github.com/containerd/log v0.1.0 // indirect
 	github.com/dgraph-io/ristretto v0.1.1 // indirect
 	github.com/distribution/reference v0.6.0 // indirect
-	github.com/docker/go-connections v0.5.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect

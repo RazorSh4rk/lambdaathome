@@ -87,13 +87,13 @@ func (client Client) CreateContainer(lambda t.LambdaFun) string {
 		// },
 	}
 
-	if hasVolume {
-		contConfVols := make(map[string]struct{})
-		for k := range volumes {
-			contConfVols[k] = struct{}{}
-		}
-		containerConfig.Volumes = contConfVols
-	}
+	// if hasVolume {
+	// 	contConfVols := make(map[string]struct{})
+	// 	for k := range volumes {
+	// 		contConfVols[k] = struct{}{}
+	// 	}
+	// 	containerConfig.Volumes = contConfVols
+	// }
 
 	//fPath, _ := filepath.Abs("./docs")
 
