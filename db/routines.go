@@ -57,21 +57,6 @@ func CleanUnusedRuntimes(db KV) {
 func RestartServices(db KV) {
 	go func() {
 		for {
-			sleepTimeEnv := os.Getenv("RESTART_INTERVAL")
-			var sleepTime int
-			if sleepTimeEnv == "" {
-				sleepTime = 120
-			} else {
-				_, err := strconv.Atoi(sleepTimeEnv)
-				if err != nil {
-					sleepTime = 120
-					log.Fatal(err)
-				} else {
-					sleepTime, _ = strconv.Atoi(sleepTimeEnv)
-				}
-			}
-
-			time.Sleep(time.Duration(sleepTime) * time.Second)
 			log.Println("restarting services")
 
 			keys := db.AllKeys()
@@ -99,6 +84,21 @@ func RestartServices(db KV) {
 				}
 			})
 
+			sleepTimeEnv := os.Getenv("RESTART_INTERVAL")
+			var sleepTime int
+			if sleepTimeEnv == "" {
+				sleepTime = 120
+			} else {
+				_, err := strconv.Atoi(sleepTimeEnv)
+				if err != nil {
+					sleepTime = 120
+					log.Fatal(err)
+				} else {
+					sleepTime, _ = strconv.Atoi(sleepTimeEnv)
+				}
+			}
+
+			time.Sleep(time.Duration(sleepTime) * time.Second)
 		}
 	}()
 }

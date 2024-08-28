@@ -1,16 +1,21 @@
 package main
 
+// import (
+// 	"log"
+// 	"net/http"
+// 	"net/http/httputil"
+// 	"net/url"
+// )
+
 import (
 	"fmt"
 	"log"
-	"net/http"
-	"net/http/httputil"
 	"os"
-	"strings"
 
 	"github.com/RazorSh4rk/lambdaathome/db"
 	api "github.com/RazorSh4rk/lambdaathome/route-handlers"
 	setup "github.com/RazorSh4rk/lambdaathome/selfsetup"
+
 	"github.com/RazorSh4rk/lambdaathome/ssl"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -41,16 +46,18 @@ func main() {
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
-		AllowOrigins: []string{"*", "*/*"},
-		AllowMethods: []string{"GET", "POST", "OPTIONS", "DELETE"},
-		AllowHeaders: []string{"Content-Type", "Content-Length", "Accept-Encoding", "Authorization", "accept", "origin"},
+		//AllowOrigins: []string{"*", "*/*"},
+		AllowAllOrigins: true,
+		AllowMethods:    []string{"*"},
+		AllowHeaders:    []string{"*"},
 	}))
+
 	router.Use(gin.Recovery())
 	router.Use(api.HandleAuth())
 
 	router.OPTIONS("/*any", func(ctx *gin.Context) {
-		ctx.Header("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS")
-		ctx.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		ctx.Header("Access-Control-Allow-Methods", "*") // "GET, POST, DELETE, OPTIONS")
+		ctx.Header("Access-Control-Allow-Headers", "*") //"Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
 		ctx.Header("Access-Control-Allow-Origin", "*")
 		ctx.Header("Content-Type", "application/json")
 		ctx.JSON(200, gin.H{})
@@ -82,49 +89,3 @@ func main() {
 
 	ssl.Run(router)
 }
-
-func ReverseProxy(ctx *gin.Context) gin.HandlerFunc {
-	pathFragments := strings.Split(ctx.Request.Host, ".")
-
-	if pathFragments[0] == "subdomain" {
-		target := "localhost:9002/ping"
-
-		return func(c *gin.Context) {
-			director := func(req *http.Request) {
-				req.URL.Scheme = "http"
-				req.URL.Host = target
-			}
-			proxy := &httputil.ReverseProxy{Director: director}
-			proxy.ServeHTTP(c.Writer, c.Request)
-		}
-	} else {
-		return func(ctx *gin.Context) {
-			ctx.Next()
-		}
-	}
-}
-
-// func NewProxy(targetHost string) (*httputil.ReverseProxy, error) {
-// 	url, err := url.Parse(targetHost)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	return httputil.NewSingleHostReverseProxy(url), nil
-// }
-
-// func ProxyRequestHandler(proxy *httputil.ReverseProxy) func(http.ResponseWriter, *http.Request) {
-// 	return func(w http.ResponseWriter, r *http.Request) {
-// 		proxy.ServeHTTP(w, r)
-// 	}
-// }
-
-// func main() {
-
-// 	proxy, err := NewProxy("http://localhost:8080")
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	http.HandleFunc("/", ProxyRequestHandler(proxy))
-// 	log.Fatal(http.ListenAndServe(":9001", nil))
-// }

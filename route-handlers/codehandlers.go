@@ -56,68 +56,70 @@ func HandleUploadCode(router *gin.Engine, db db.KV, runtimes db.KV) {
 			return
 		}
 
-		zipFile, _ := c.FormFile("file")
-		id := uuid.New().String()
+		go func() {
+			zipFile, _ := c.FormFile("file")
+			id := uuid.New().String()
 
-		cacheDir := fmt.Sprintf("./buildcache/%s/", id)
+			cacheDir := fmt.Sprintf("./buildcache/%s/", id)
 
-		fPath := fmt.Sprintf("%s%s", cacheDir, zipFile.Filename)
-		c.SaveUploadedFile(zipFile, fPath)
-		defer os.RemoveAll(cacheDir)
+			fPath := fmt.Sprintf("%s%s", cacheDir, zipFile.Filename)
+			c.SaveUploadedFile(zipFile, fPath)
+			defer os.RemoveAll(cacheDir)
 
-		archive, err := zip.OpenReader(fPath)
-		if err != nil {
-			c.JSON(500, gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
-		defer archive.Close()
+			archive, err := zip.OpenReader(fPath)
+			if err != nil {
+				c.JSON(500, gin.H{
+					"error": err.Error(),
+				})
+				return
+			}
+			defer archive.Close()
 
-		for _, file := range archive.File {
-			unzip(file, cacheDir)
-		}
+			for _, file := range archive.File {
+				unzip(file, cacheDir)
+			}
 
-		// copy the right dockerfile into the cache
-		dockerfile := runtimes.Get(lambda.Runtime)
-		f, err := os.ReadFile("./runtimes/" + dockerfile)
-		if err != nil {
-			c.JSON(500, gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
-		err = os.WriteFile(cacheDir+"code/Dockerfile", f, 0644)
-		if err != nil {
-			c.JSON(500, gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
+			// copy the right dockerfile into the cache
+			dockerfile := runtimes.Get(lambda.Runtime)
+			f, err := os.ReadFile("./runtimes/" + dockerfile)
+			if err != nil {
+				c.JSON(500, gin.H{
+					"error": err.Error(),
+				})
+				return
+			}
+			err = os.WriteFile(cacheDir+"code/Dockerfile", f, 0644)
+			if err != nil {
+				c.JSON(500, gin.H{
+					"error": err.Error(),
+				})
+				return
+			}
 
-		docker, err := commands.NewClient()
-		if err != nil {
-			c.JSON(500, gin.H{
-				"error": err.Error(),
-			})
-			return
-		}
-		defer docker.Close()
+			docker, err := commands.NewClient()
+			if err != nil {
+				c.JSON(500, gin.H{
+					"error": err.Error(),
+				})
+				return
+			}
+			defer docker.Close()
 
-		lambda.Source = cacheDir + "code/"
-		docker.BuildImage(lambda)
-		containerId := docker.RunDetached(lambda)
+			lambda.Source = cacheDir + "code/"
+			docker.BuildImage(lambda)
+			containerId := docker.RunDetached(lambda)
 
-		lambda.ID = containerId
+			lambda.ID = containerId
 
-		record, err := json.Marshal(lambda)
-		if err != nil {
-			log.Fatal(err, containerId, lambda)
-		}
-		db.Set(containerId, string(record))
+			record, err := json.Marshal(lambda)
+			if err != nil {
+				log.Fatal(err, containerId, lambda)
+			}
+			db.Set(containerId, string(record))
+		}()
 
 		c.JSON(200, gin.H{
-			"message": "Code uploaded",
+			"message": "Code uploaded, build process started",
 			"data":    lambda,
 		})
 	})

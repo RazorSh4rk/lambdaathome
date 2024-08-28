@@ -4,6 +4,7 @@ code-db/
 runtimes/
 runtimes-db/
 test-runtime/
+node-request-dump/
 logfile
 Dockerfile
 passfile
