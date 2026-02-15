@@ -412,13 +412,36 @@ curl -X POST \
 
 ## Reverse Proxy
 
-Deployed functions are accessible via subdomain routing. If your server is at `example.com` and you deploy a function named `my-api`, it becomes reachable at:
+Every deployed function automatically gets its own subdomain. Deploy a function named `my-api` and it's immediately reachable at:
 
 ```
-http://my-api.example.com/any/path
+https://my-api.yourdomain.com/any/path
 ```
 
-The proxy extracts the first subdomain from the request host, looks up the matching function, and forwards the request to `http://localhost:<port>/<path>`.
+No configuration needed per function -- the proxy matches the first subdomain segment to a function name and forwards the request to its container. Combined with auto SSL, every function gets HTTPS out of the box.
+
+### DNS Setup
+
+Point a wildcard DNS record at your server:
+
+```
+*.yourdomain.com  →  A  →  <your server IP>
+```
+
+That's it. Any new function you deploy is instantly accessible at `<function-name>.yourdomain.com` without touching DNS again.
+
+### How it works
+
+1. Request comes in for `my-api.yourdomain.com/hello`
+2. The proxy extracts `my-api` from the `Host` header
+3. Looks up the function in the database, finds it runs on port 9002
+4. Forwards the request to `http://localhost:9002/hello`
+
+### Caveats
+
+- Routing is subdomain-based only. No path-based routing (e.g. `yourdomain.com/my-api` won't work).
+- Only the first subdomain segment is matched. `my-api.yourdomain.com` works, `v2.my-api.yourdomain.com` would try to match `v2`, not `my-api`.
+- In local development there are no real subdomains. Hit your functions directly at `http://localhost:<port>`.
 
 ---
 

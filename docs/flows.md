@@ -99,10 +99,18 @@
 
 ## Reverse proxy
 
-- Runs as Gin middleware on every request
-- Extracts the first subdomain from the request host (e.g. `myfunction.example.com` -> `myfunction`)
-- Looks up a matching function by name in `code-db`
-- Proxies the request to `http://localhost:<port><path>`
+Every deployed function automatically gets a subdomain. No per-function routing config needed.
+
+1. A wildcard DNS record (`*.yourdomain.com`) points all subdomains at the server
+2. A request arrives at `my-api.yourdomain.com/hello`
+3. The Gin middleware (`proxy.go`) splits the `Host` header by `.` and takes the first segment (`my-api`)
+4. It scans `code-db` for a function whose `Name` matches
+5. If found, it proxies the request to `http://localhost:<port>/hello` using `httputil.ReverseProxy`
+6. If no function matches, the request falls through to the next Gin handler
+
+- Routing is subdomain-only. Path-based routing (e.g. `yourdomain.com/my-api`) is not supported.
+- Only the first subdomain segment is matched. `v2.my-api.yourdomain.com` matches `v2`, not `my-api`.
+- With `ENV=prod` and `ALLOWLIST` set, all subdomains get HTTPS automatically via Let's Encrypt.
 
 ## Background routines
 
