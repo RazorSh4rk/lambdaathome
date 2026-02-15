@@ -3,16 +3,47 @@ package api
 import (
 	"encoding/json"
 	"log"
-	"strings"
 
 	"github.com/RazorSh4rk/f"
 	"github.com/RazorSh4rk/lambdaathome/db"
-	commands "github.com/RazorSh4rk/lambdaathome/docker-commands"
 	"github.com/RazorSh4rk/lambdaathome/types"
 	dockerTypes "github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/image"
 	"github.com/gin-gonic/gin"
 )
+
+func findFunctionByName(db db.KV, name string) (string, types.LambdaFun, bool) {
+	keys := db.AllKeys()
+	for _, key := range keys {
+		var lambda types.LambdaFun
+		record := db.Get(key)
+		err := json.Unmarshal([]byte(record), &lambda)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+		if lambda.Name == name {
+			return key, lambda, true
+		}
+	}
+	return "", types.LambdaFun{}, false
+}
+
+func HandleGetFunction(router *gin.Engine, db db.KV) {
+	router.GET("/function/get/:name", func(c *gin.Context) {
+		name := c.Param("name")
+
+		_, lambda, found := findFunctionByName(db, name)
+		if !found {
+			c.JSON(404, gin.H{
+				"error": "Function not found",
+			})
+			return
+		}
+
+		c.JSON(200, lambda)
+	})
+}
 
 func HandleListFunctions(router *gin.Engine, db db.KV) {
 	router.GET("/function/list", func(c *gin.Context) {
@@ -37,7 +68,7 @@ func HandleListFunctions(router *gin.Engine, db db.KV) {
 
 func HandleListRunningFunctions(router *gin.Engine, db db.KV) {
 	router.GET("/function/listrunning", func(c *gin.Context) {
-		docker, err := commands.NewClient()
+		docker, err := newDockerClient()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -50,7 +81,7 @@ func HandleListRunningFunctions(router *gin.Engine, db db.KV) {
 
 func HandleListInstalledFunctions(router *gin.Engine) {
 	router.GET("/function/listinstalled", func(c *gin.Context) {
-		docker, err := commands.NewClient()
+		docker, err := newDockerClient()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -77,7 +108,7 @@ func HandleStartBuiltFunction(router *gin.Engine, db db.KV) {
 		key := c.Param("key")
 		log.Printf("attempting to start %s", key)
 
-		docker, err := commands.NewClient()
+		docker, err := newDockerClient()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -104,32 +135,29 @@ func HandleStartBuiltFunction(router *gin.Engine, db db.KV) {
 	})
 }
 
-func HandleKillFunction(router *gin.Engine, db db.KV) {
-	router.DELETE("/function/kill/:key", func(ctx *gin.Context) {
-		key := ctx.Param("key")
+func HandleDeleteFunction(router *gin.Engine, db db.KV) {
+	router.DELETE("/function/delete/:name", func(ctx *gin.Context) {
+		name := ctx.Param("name")
 
-		db.Delete(key)
+		key, lambda, found := findFunctionByName(db, name)
+		if !found {
+			ctx.JSON(404, gin.H{
+				"error": "Function not found",
+			})
+			return
+		}
 
-		docker, err := commands.NewClient()
+		docker, err := newDockerClient()
 		if err != nil {
 			log.Fatal(err)
 		}
 		defer docker.Close()
 
-		isRunning := f.From(docker.ListRunning()).Has(func(cont dockerTypes.Container) bool {
-			return strings.HasPrefix(cont.ID, key)
-		})
-
-		if !isRunning {
-			ctx.JSON(404, gin.H{
-				"error": "Function not running",
-			})
-			return
-		}
-
+		docker.Kill(lambda.ID)
+		docker.RemoveContainer(lambda.ID)
+		docker.RemoveImage(lambda.Tag)
 		db.Delete(key)
-		docker.Kill(key)
-		db.Delete(key)
+
 		ctx.JSON(200, gin.H{
 			"message": "Deleted",
 		})

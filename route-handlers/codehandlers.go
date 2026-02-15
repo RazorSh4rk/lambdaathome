@@ -12,7 +12,6 @@ import (
 
 	"github.com/RazorSh4rk/f"
 	"github.com/RazorSh4rk/lambdaathome/db"
-	commands "github.com/RazorSh4rk/lambdaathome/docker-commands"
 	"github.com/RazorSh4rk/lambdaathome/types"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -56,6 +55,20 @@ func HandleUploadCode(router *gin.Engine, db db.KV, runtimes db.KV) {
 			return
 		}
 
+		// tear down existing function with the same name
+		if key, existing, found := findFunctionByName(db, lambda.Name); found {
+			docker, err := newDockerClient()
+			if err != nil {
+				log.Println(err)
+			} else {
+				docker.Kill(existing.ID)
+				docker.RemoveContainer(existing.ID)
+				docker.RemoveImage(existing.Tag)
+				docker.Close()
+			}
+			db.Delete(key)
+		}
+
 		go func() {
 			zipFile, _ := c.FormFile("file")
 			id := uuid.New().String()
@@ -96,7 +109,7 @@ func HandleUploadCode(router *gin.Engine, db db.KV, runtimes db.KV) {
 				return
 			}
 
-			docker, err := commands.NewClient()
+			docker, err := newDockerClient()
 			if err != nil {
 				c.JSON(500, gin.H{
 					"error": err.Error(),

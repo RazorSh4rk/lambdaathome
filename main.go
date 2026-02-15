@@ -81,9 +81,10 @@ func main() {
 	db.RestartServices(codeStore)
 
 	api.HandleUploadCode(router, codeStore, runtimeStore)
+	api.HandleGetFunction(router, codeStore)
 	api.HandleListFunctions(router, codeStore)
 	api.HandleListRunningFunctions(router, codeStore)
-	api.HandleKillFunction(router, codeStore)
+	api.HandleDeleteFunction(router, codeStore)
 	api.HandleStartBuiltFunction(router, codeStore)
 	api.HandleListInstalledFunctions(router)
 
