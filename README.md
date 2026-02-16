@@ -6,6 +6,7 @@ Deploy serverless functions _on a server_.
 
 ## Table of Contents
 
+- [Install](#install)
 - [What is this](#what-is-this)
 - [Lambdaathome vs Kubernetes](#lambdaathome-vs-kubernetes)
   - [Advantages over Kubernetes](#advantages-over-kubernetes)
@@ -143,7 +144,21 @@ You bring a Dockerfile and a zip of your code. Lambdaathome builds it, runs it, 
 
 ---
 
+## Install
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/RazorSh4rk/lambdaathome/main/install.sh | sudo bash
+```
+
+This detects your architecture (x86_64 or arm64), downloads the latest release, and installs the binary to `/usr/local/bin/lambdaathome`.
+
+The only prerequisite is a running [Docker](https://docs.docker.com/get-docker/) daemon.
+
+---
+
 ## Project Setup
+
+For development, you can build from source instead:
 
 ### Prerequisites
 
