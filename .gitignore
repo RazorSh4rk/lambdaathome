@@ -8,3 +8,4 @@ node-request-dump/
 logfile
 Dockerfile
 passfile
+.claude
