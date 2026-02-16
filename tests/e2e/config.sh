@@ -4,7 +4,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 BASE_URL="${BASE_URL:-http://localhost:8080}"
-AUTH="$(cat "$PROJECT_ROOT/passfile")"
+AUTH="$(cat "$HOME/.passfile")"
 
 RUNTIME_NAME="e2e-runtime"
 FUNCTION_NAME="e2e-testfn"

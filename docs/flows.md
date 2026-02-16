@@ -2,8 +2,8 @@
 
 ## First-time setup
 
-- On first run, `selfsetup.Setup()` checks for a `passfile`
-  - If missing, generates a UUID passkey, writes it to `./passfile`, and prints it to stdout
+- On first run, `selfsetup.Setup()` checks for `~/.passfile`
+  - If missing, generates a UUID passkey, writes it to `~/.passfile`, and prints it to stdout
   - If present, reads it into memory
 - The passkey is used as the `Authorization` header for all API requests
 - Two Badger KV stores are opened: `runtimes-db` and `code-db`
@@ -12,7 +12,7 @@
 ## Authentication
 
 - Every request passes through the `HandleAuth` middleware
-- The middleware reads `./passfile` and compares it to the `Authorization` header
+- The middleware reads `~/.passfile` and compares it to the `Authorization` header
 - If they don't match, the request is rejected with `401 Unauthorized`
 
 ## Create a new runtime

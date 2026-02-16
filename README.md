@@ -30,6 +30,18 @@ Deploy serverless functions _on a server_.
 
 ---
 
+## Install
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/RazorSh4rk/lambdaathome/main/install.sh | sudo bash
+```
+
+This detects your architecture (x86_64 or arm64), downloads the latest release, and installs the binary to `/usr/local/bin/lambdaathome`.
+
+The only prerequisite is a running [Docker](https://docs.docker.com/get-docker/) daemon.
+
+---
+
 ## What is this
 
 Remember when Heroku was a viable thing, before Salesforce bought it and went "hm yes this platform that was specifically tailored for small scale projects with solo developers to make them easier to deploy would work way better as a very expensive kubernetes service that nobody asked for"?
@@ -81,7 +93,7 @@ You bring a Dockerfile and a zip of your code. Lambdaathome builds it, runs it, 
 - No CNI plugin management (Calico, Flannel, Cilium). Docker bridge networking just works.
 - No RBAC policy trees, no CRD version matrices, no operator lifecycle management.
 - Straightforward debugging: functions are Docker containers on localhost. `docker logs`, `docker exec`, and `docker inspect` work directly. No iptables maze from kube-proxy, no overlay network to troubleshoot.
-- Self-contained state: the entire platform (DB, passfile, runtimes, TLS cache) lives in the working directory. Backup is `cp -r`. Migration is `scp` to a new server.
+- Self-contained state: the entire platform (DB, runtimes, TLS cache) lives in the working directory, passfile at `~/.passfile`. Backup is `cp -r`. Migration is `scp` to a new server.
 
 **Smaller attack surface**
 - Fewer components means fewer CVEs to track. Kubernetes has had critical CVEs in the API server, kubelet, and etcd. Lambdaathome exposes a single HTTP server.
@@ -144,18 +156,6 @@ You bring a Dockerfile and a zip of your code. Lambdaathome builds it, runs it, 
 
 ---
 
-## Install
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/RazorSh4rk/lambdaathome/main/install.sh | sudo bash
-```
-
-This detects your architecture (x86_64 or arm64), downloads the latest release, and installs the binary to `/usr/local/bin/lambdaathome`.
-
-The only prerequisite is a running [Docker](https://docs.docker.com/get-docker/) daemon.
-
----
-
 ## Project Setup
 
 For development, you can build from source instead:
@@ -183,7 +183,7 @@ go run .
 air
 ```
 
-On first run, a `passfile` is generated with a UUID. **Copy this value** -- it's your API key for all requests.
+On first run, `~/.passfile` is generated with a UUID. **Copy this value** -- it's your API key for all requests.
 
 ### Dashboard
 
@@ -212,11 +212,11 @@ Create a `.env` file in the project root (or set them in your shell):
 
 ## Authentication
 
-All API requests require the `Authorization` header set to the contents of `./passfile`.
+All API requests require the `Authorization` header set to the contents of `~/.passfile`.
 
 ```bash
 # read the key
-KEY=$(cat passfile)
+KEY=$(cat ~/.passfile)
 
 # use it in requests
 curl -H "Authorization: $KEY" http://localhost:8080/runtime/list
@@ -495,7 +495,7 @@ bash tests/e2e/delete_function.sh
 bash tests/e2e/cleanup.sh
 ```
 
-Each script reads the passkey from `./passfile` automatically.
+Each script reads the passkey from `~/.passfile` automatically.
 
 ---
 
