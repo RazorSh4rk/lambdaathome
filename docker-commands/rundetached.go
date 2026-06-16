@@ -101,7 +101,7 @@ func (client Client) CreateContainer(lambda t.LambdaFun) string {
 		PortBindings: nat.PortMap{
 			nat.Port("8080/tcp"): []nat.PortBinding{
 				{
-					HostIP:   "127.0.0.1",
+					HostIP:   "0.0.0.0",
 					HostPort: lambda.Port,
 				},
 			},
